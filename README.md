@@ -1,89 +1,159 @@
-# 渋谷愛ビジョン - AIコンシェルジュ LINEミニアプリ
+# 渋谷愛ビジョン AIコンシェルジュ - LINEミニアプリ
 
-渋谷の大型ビジョンで「おめでとう」「ありがとう」のメッセージを届けるサービスのLINEミニアプリ（LIFF）です。
+<div align="center">
+  <img src="https://img.shields.io/badge/LINE-LIFF-00B900?style=for-the-badge&logo=line&logoColor=white" alt="LINE LIFF">
+  <img src="https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+</div>
 
-## 機能
+## 📖 概要
 
-### ユーザー向け機能
+渋谷駅・宮益坂下交差点の大型ビジョンで「おめでとう」「ありがとう」のメッセージを放映できるサービスのLINEミニアプリです。AIコンシェルジュとの対話を通じて、簡単にメッセージを作成・注文できます。
 
-- **AIコンシェルジュ対話**: 自然な会話でメッセージ作成をサポート
-- **メッセージ作成**: 8文字×5行のビジョン用メッセージを作成
-- **プラン選択**: 無料〜有料プランから選択
-- **注文管理**: 注文履歴の確認
+### ✨ 主な機能
 
-### 管理者向け機能
+- 🤖 **AIコンシェルジュ**: 自然な会話でメッセージ作成をサポート
+- 📝 **メッセージエディター**: 8文字×5行のビジョン用フォーマットに対応
+- 💎 **プラン選択**: 無料〜有料まで4種類のプランから選択
+- 📊 **管理画面**: 注文管理、統計分析、プラン管理
+- 📱 **LINE連携**: LIFF SDKによるシームレスな体験
 
-- **ダッシュボード**: 注文統計、売上確認
-- **注文管理**: ステータス変更、詳細確認
-- **プラン管理**: プラン情報の確認
-
-## 技術スタック
-
-- **フロントエンド**: React + TypeScript + Vite
-- **スタイリング**: Tailwind CSS
-- **状態管理**: Zustand
-- **ルーティング**: React Router v6
-- **LIFF SDK**: LINE Front-end Framework
-- **AI対話**: カスタム対話エンジン（将来的にAI API連携予定）
-
-## セットアップ
+## 🚀 クイックスタート
 
 ### 前提条件
 
 - Node.js 18以上
 - npm または pnpm
 - LINE Developersアカウント
-- LIFFアプリの作成
 
 ### インストール
 
 ```bash
-# 依存関係のインストール
+# リポジトリをクローン
+git clone https://github.com/Rio2Ryo/shibuya-ai-vision-liff.git
+cd shibuya-ai-vision-liff
+
+# 依存関係をインストール
 npm install
 
-# 開発サーバーの起動
-npm run dev
+# 環境変数を設定
+cp .env.example .env
+# .envファイルを編集してLIFF IDを設定
 
-# ビルド
-npm run build
+# 開発サーバーを起動
+npm run dev
 ```
 
 ### 環境変数
 
-`.env`ファイルを作成し、以下の変数を設定してください：
-
 ```env
-VITE_LIFF_ID=your-liff-id-here
+# LIFF ID（LINE Developersで取得）
+VITE_LIFF_ID=your-liff-id
+
+# AI API（オプション）
+ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# LINE Messaging API（オプション）
+LINE_CHANNEL_ACCESS_TOKEN=your-line-channel-access-token
 ```
 
-## LINE Developers設定
+## 📁 プロジェクト構成
 
-### 1. チャネルの作成
+```
+shibuya-ai-vision-liff/
+├── api/                    # Vercel Serverless Functions
+│   ├── chat.ts            # AI チャット API
+│   ├── order.ts           # 注文管理 API
+│   └── line-notify.ts     # LINE 通知 API
+├── src/
+│   ├── components/        # React コンポーネント
+│   │   ├── common/        # 共通コンポーネント
+│   │   ├── chat/          # チャット関連
+│   │   ├── message/       # メッセージエディター
+│   │   └── plan/          # プラン選択
+│   ├── constants/         # 定数定義
+│   ├── hooks/             # カスタムフック
+│   ├── pages/             # ページコンポーネント
+│   ├── services/          # サービス層
+│   ├── stores/            # 状態管理（Zustand）
+│   ├── styles/            # スタイル
+│   ├── types/             # 型定義
+│   └── utils/             # ユーティリティ
+├── scripts/               # スクリプト
+└── public/                # 静的ファイル
+```
 
-1. [LINE Developers Console](https://developers.line.biz/console/)にアクセス
-2. 新しいプロバイダーを作成（または既存のものを選択）
-3. 「LINE Login」チャネルを作成
+## 🎨 機能詳細
 
-### 2. LIFFアプリの登録
+### ユーザー向け機能
 
-1. チャネル設定 → LIFF タブ
-2. 「追加」をクリック
-3. 以下の設定を入力：
-   - **サイズ**: Full（推奨）
-   - **エンドポイントURL**: デプロイ後のURL
-   - **Scope**: profile, openid
-   - **ボットリンク機能**: On（Aggressive）
+#### AIコンシェルジュ
+- 自然言語での対話
+- メッセージ提案（3パターン）
+- プラン推奨
+- 注文確認
 
-### 3. LIFF IDの取得
+#### メッセージ作成
+- 8文字×5行のフォーマット
+- リアルタイムプレビュー
+- 文字数カウント
+- 絵文字対応
 
-作成後に表示されるLIFF IDを`.env`ファイルに設定します。
+#### 料金プラン
+| プラン | 料金 | 特徴 |
+|--------|------|------|
+| 無料 | ¥0 | 抽選で放映、1日1通 |
+| TEAM愛9 | ¥500/月 | 当選確率UP、1日2通 |
+| 事前予約 | ¥8,800〜 | 確実放映、愛デコ対応 |
+| おめあり祭23B | ¥3,300 | 当日予約OK、23時台放映 |
 
-## デプロイ
+### 管理者向け機能
+
+- **ダッシュボード**: 注文統計、売上推移
+- **注文管理**: ステータス変更、検索・フィルター
+- **プラン管理**: プラン情報の編集
+- **分析**: 日別・プラン別の分析
+
+## 🛠 技術スタック
+
+### フロントエンド
+- **React 18** - UIライブラリ
+- **TypeScript** - 型安全性
+- **Vite** - ビルドツール
+- **Tailwind CSS** - スタイリング
+- **Zustand** - 状態管理
+- **React Router** - ルーティング
+- **Lucide React** - アイコン
+- **LIFF SDK** - LINE連携
+
+### バックエンド
+- **Vercel Functions** - サーバーレス関数
+- **Anthropic Claude** - AI対話
+- **LINE Messaging API** - 通知
+
+## 📱 LINE Developers 設定
+
+### 1. LIFFアプリの作成
+
+1. [LINE Developers Console](https://developers.line.biz/console/) にアクセス
+2. プロバイダーを選択または作成
+3. 「LINEログイン」チャネルを作成
+4. 「LIFF」タブで新しいLIFFアプリを追加
+5. エンドポイントURLにデプロイ先URLを設定
+
+### 2. Messaging APIの設定（オプション）
+
+1. 「Messaging API」チャネルを作成
+2. チャネルアクセストークンを取得
+3. Webhook URLを設定
+
+## 🚀 デプロイ
 
 ### Vercelへのデプロイ
 
 ```bash
-# Vercel CLIのインストール
+# Vercel CLIをインストール
 npm i -g vercel
 
 # デプロイ
@@ -97,58 +167,54 @@ vercel --prod
 
 Vercelダッシュボードで以下の環境変数を設定：
 
-- `VITE_LIFF_ID`: LIFFアプリのID
+- `VITE_LIFF_ID`
+- `ANTHROPIC_API_KEY`（オプション）
+- `LINE_CHANNEL_ACCESS_TOKEN`（オプション）
 
-## プロジェクト構成
+## 🧪 開発
 
-```
-shibuya-ai-vision-liff/
-├── src/
-│   ├── App.tsx              # メインアプリケーション
-│   ├── main.tsx             # エントリーポイント
-│   ├── index.css            # グローバルスタイル
-│   ├── pages/
-│   │   └── Admin.tsx        # 管理者画面
-│   ├── services/
-│   │   ├── aiChatService.ts # AI対話サービス
-│   │   ├── orderService.ts  # 注文管理サービス
-│   │   └── lineNotificationService.ts # LINE通知サービス
-│   ├── types/
-│   │   ├── index.ts         # 共通型定義
-│   │   └── order.ts         # 注文関連型定義
-│   └── hooks/
-│       └── useLiff.ts       # LIFFフック
-├── scripts/
-│   └── send_line_notification.sh # LINE通知スクリプト
-├── vercel.json              # Vercel設定
-├── tailwind.config.js       # Tailwind設定
-└── vite.config.ts           # Vite設定
+### コマンド
+
+```bash
+# 開発サーバー
+npm run dev
+
+# ビルド
+npm run build
+
+# プレビュー
+npm run preview
+
+# 型チェック
+npm run typecheck
+
+# リント
+npm run lint
 ```
 
-## 料金プラン
+### デモモード
 
-| プラン | 料金 | 特徴 |
-|--------|------|------|
-| 無料プラン | ¥0 | 抽選で放映、1日1通まで |
-| TEAM愛9 | ¥500/月 | 当選確率UP、1日2通まで |
-| 事前予約 | ¥8,800〜 | 確実放映、愛デコ・愛カード対応 |
-| おめあり祭23B | ¥3,300 | 当日予約OK、23時台放映 |
+LIFF IDが設定されていない場合、自動的にデモモードで動作します。デモモードでは：
 
-## 今後の拡張予定
+- LIFF認証をスキップ
+- ローカルストレージを使用
+- AI応答はモック
 
-- [ ] 実際のAI API連携（Claude/GPT）
-- [ ] 決済機能の実装
-- [ ] LINE通知の完全実装
-- [ ] 放映スケジュール管理
-- [ ] 愛デコ・愛カード機能
-- [ ] YouTube LIVE連携
-
-## ライセンス
+## 📄 ライセンス
 
 MIT License
 
-## 関連リンク
+## 🤝 コントリビューション
+
+プルリクエストを歓迎します。大きな変更を行う場合は、まずissueを開いて議論してください。
+
+## 📞 サポート
 
 - [渋谷愛ビジョン公式サイト](https://ec.saivision.jp/)
-- [LINE Developers](https://developers.line.biz/)
-- [LIFF Documentation](https://developers.line.biz/ja/docs/liff/)
+- [LINE公式アカウント](https://line.me/R/ti/p/@shibuya-ai-vision)
+
+---
+
+<div align="center">
+  Made with 💕 for 渋谷愛ビジョン
+</div>
