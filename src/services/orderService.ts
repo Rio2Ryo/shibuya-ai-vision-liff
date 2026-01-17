@@ -15,7 +15,7 @@ export const DEFAULT_PLANS: Plan[] = [
     sortOrder: 1,
   },
   {
-    id: 'team-ai9',
+    id: 'team_ai9',
     name: 'TEAM愛9',
     description: '月額500円で当選確率UP',
     price: 500,
@@ -24,7 +24,7 @@ export const DEFAULT_PLANS: Plan[] = [
     sortOrder: 2,
   },
   {
-    id: 'reserved',
+    id: 'advance_reservation',
     name: '事前予約',
     description: '8,800円〜で確実に放映',
     price: 8800,
@@ -33,7 +33,7 @@ export const DEFAULT_PLANS: Plan[] = [
     sortOrder: 3,
   },
   {
-    id: 'omeari-23b',
+    id: 'omeari_23b',
     name: 'おめあり祭23B',
     description: '3,300円で当日予約OK（23時台放映）',
     price: 3300,
@@ -56,14 +56,7 @@ const getOrdersFromStorage = (): Order[] => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     if (!data) return [];
-    const orders = JSON.parse(data);
-    return orders.map((order: Order) => ({
-      ...order,
-      createdAt: new Date(order.createdAt),
-      updatedAt: new Date(order.updatedAt),
-      confirmedAt: order.confirmedAt ? new Date(order.confirmedAt) : undefined,
-      broadcastedAt: order.broadcastedAt ? new Date(order.broadcastedAt) : undefined,
-    }));
+    return JSON.parse(data);
   } catch {
     return [];
   }
@@ -104,19 +97,23 @@ export class OrderService {
       throw new Error('Invalid plan ID');
     }
 
+    const now = new Date().toISOString();
     const order: Order = {
       id: generateId(),
       userId,
       recipientName: request.recipientName,
       occasion: request.occasion,
       broadcastDate: request.broadcastDate,
+      scheduledDate: request.broadcastDate,
       messageLines: request.messageLines,
+      message: request.messageLines.join('\n'),
       planId: request.planId,
       planName: plan.name,
       price: plan.price,
+      totalAmount: plan.price,
       status: 'pending',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     };
 
     const orders = getOrdersFromStorage();
@@ -161,7 +158,7 @@ export class OrderService {
     }
 
     // 新しい順にソート
-    return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   // ユーザーの注文一覧を取得
@@ -169,7 +166,7 @@ export class OrderService {
     const orders = getOrdersFromStorage();
     return orders
       .filter(o => o.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   // 注文ステータスを更新
@@ -179,13 +176,14 @@ export class OrderService {
     
     if (index === -1) return null;
 
+    const now = new Date().toISOString();
     orders[index].status = status;
-    orders[index].updatedAt = new Date();
+    orders[index].updatedAt = now;
 
     if (status === 'confirmed') {
-      orders[index].confirmedAt = new Date();
+      orders[index].confirmedAt = now;
     } else if (status === 'broadcasted') {
-      orders[index].broadcastedAt = new Date();
+      orders[index].broadcastedAt = now;
     }
 
     saveOrdersToStorage(orders);
@@ -257,14 +255,17 @@ export class OrderService {
         recipientName: '田中花子',
         occasion: '誕生日',
         broadcastDate: '2026-01-20',
+        scheduledDate: '2026-01-20',
         messageLines: ['花子へ', 'お誕生日', 'おめでとう', 'いつも', 'ありがとう♥'],
-        planId: 'reserved',
+        message: '花子へ\nお誕生日\nおめでとう\nいつも\nありがとう♥',
+        planId: 'advance_reservation',
         planName: '事前予約',
         price: 8800,
+        totalAmount: 8800,
         status: 'confirmed',
-        createdAt: new Date('2026-01-15T10:00:00'),
-        updatedAt: new Date('2026-01-15T10:30:00'),
-        confirmedAt: new Date('2026-01-15T10:30:00'),
+        createdAt: '2026-01-15T10:00:00.000Z',
+        updatedAt: '2026-01-15T10:30:00.000Z',
+        confirmedAt: '2026-01-15T10:30:00.000Z',
       },
       {
         id: 'demo_002',
@@ -272,13 +273,16 @@ export class OrderService {
         recipientName: '山田太郎',
         occasion: '感謝',
         broadcastDate: '2026-01-18',
+        scheduledDate: '2026-01-18',
         messageLines: ['太郎さん', 'いつも', 'ありがとう', 'これからも', 'よろしく♥'],
+        message: '太郎さん\nいつも\nありがとう\nこれからも\nよろしく♥',
         planId: 'free',
         planName: '無料プラン',
         price: 0,
+        totalAmount: 0,
         status: 'pending',
-        createdAt: new Date('2026-01-17T09:00:00'),
-        updatedAt: new Date('2026-01-17T09:00:00'),
+        createdAt: '2026-01-17T09:00:00.000Z',
+        updatedAt: '2026-01-17T09:00:00.000Z',
       },
       {
         id: 'demo_003',
@@ -286,14 +290,17 @@ export class OrderService {
         recipientName: '佐藤美咲',
         occasion: '記念日',
         broadcastDate: '2026-01-25',
+        scheduledDate: '2026-01-25',
         messageLines: ['美咲へ', '結婚記念日', 'おめでとう', '愛してる', 'ずっと一緒♥'],
-        planId: 'omeari-23b',
+        message: '美咲へ\n結婚記念日\nおめでとう\n愛してる\nずっと一緒♥',
+        planId: 'omeari_23b',
         planName: 'おめあり祭23B',
         price: 3300,
+        totalAmount: 3300,
         status: 'paid',
-        createdAt: new Date('2026-01-16T14:00:00'),
-        updatedAt: new Date('2026-01-16T15:00:00'),
-        confirmedAt: new Date('2026-01-16T15:00:00'),
+        createdAt: '2026-01-16T14:00:00.000Z',
+        updatedAt: '2026-01-16T15:00:00.000Z',
+        confirmedAt: '2026-01-16T15:00:00.000Z',
       },
     ];
 

@@ -7,15 +7,18 @@ export interface Order {
   recipientName: string;
   occasion: string;
   broadcastDate: string;
+  scheduledDate?: string;
   messageLines: string[];
+  message: string; // 改行区切りのメッセージ全文
   planId: string;
   planName: string;
   price: number;
+  totalAmount: number;
   status: OrderStatus;
-  createdAt: Date;
-  updatedAt: Date;
-  confirmedAt?: Date;
-  broadcastedAt?: Date;
+  createdAt: string;
+  updatedAt: string;
+  confirmedAt?: string;
+  broadcastedAt?: string;
 }
 
 export type OrderStatus = 
@@ -23,7 +26,9 @@ export type OrderStatus =
   | 'confirmed'    // 確定済み
   | 'paid'         // 支払い済み
   | 'scheduled'    // 放映予定
+  | 'broadcast'    // 放映中
   | 'broadcasted'  // 放映完了
+  | 'completed'    // 完了
   | 'cancelled';   // キャンセル
 
 export interface Plan {
@@ -42,8 +47,8 @@ export interface User {
   displayName: string;
   pictureUrl?: string;
   statusMessage?: string;
-  createdAt: Date;
-  lastLoginAt: Date;
+  createdAt: string;
+  lastLoginAt: string;
 }
 
 // 注文作成リクエスト

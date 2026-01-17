@@ -802,3 +802,448 @@ body {
     display: none;
   }
 }
+
+/* ========================================
+   スマートフォン最適化追加スタイル
+   ======================================== */
+
+/* タッチ操作の最適化 */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* スワイプ可能なコンテナ */
+.swipe-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+.swipe-item {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* 注文履歴カード */
+.order-history-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  transition: all 0.2s ease;
+}
+
+.order-history-card:active {
+  transform: scale(0.98);
+  background: #fdf2f8;
+}
+
+/* ボトムシート */
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 24px 24px 0 0;
+  padding: 24px;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  animation: slideInUp 0.3s ease-out;
+}
+
+.bottom-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: #d1d5db;
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+/* プルダウンリフレッシュインジケーター */
+.pull-refresh {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  color: #ec4899;
+}
+
+/* フローティングアクションボタン */
+.fab {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #ec4899, #db2777);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 20px rgba(236, 72, 153, 0.4);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 50;
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+/* スナックバー */
+.snackbar {
+  position: fixed;
+  bottom: 80px;
+  left: 16px;
+  right: 16px;
+  background: #1f2937;
+  color: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  animation: slideInUp 0.3s ease-out;
+}
+
+.snackbar-action {
+  color: #f9a8d4;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 16px;
+}
+
+/* 空状態 */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: #9ca3af;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 8px;
+}
+
+.empty-state-description {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ステップインジケーター */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+}
+
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.step-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #ec4899, #db2777);
+}
+
+.step-dot.completed {
+  background: #10b981;
+}
+
+/* メッセージ入力の文字カウンター */
+.char-counter {
+  font-size: 12px;
+  color: #9ca3af;
+  text-align: right;
+  margin-top: 4px;
+}
+
+.char-counter.warning {
+  color: #f59e0b;
+}
+
+.char-counter.error {
+  color: #ef4444;
+}
+
+/* 画像プレビュー */
+.image-preview {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.image-preview-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+}
+
+/* アコーディオン */
+.accordion {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.accordion-header:active {
+  background: #f9fafb;
+}
+
+.accordion-content {
+  padding: 0 16px;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.accordion-content.open {
+  padding: 16px;
+  max-height: 500px;
+}
+
+/* チップ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f3f4f6;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.chip-primary {
+  background: #fdf2f8;
+  color: #db2777;
+}
+
+.chip-success {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.chip-removable {
+  padding-right: 8px;
+}
+
+.chip-remove {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* 日付ピッカー風スタイル */
+.date-picker-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-picker-btn:active {
+  border-color: #ec4899;
+  background: #fdf2f8;
+}
+
+/* 価格表示 */
+.price-display {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ec4899;
+}
+
+.price-display .currency {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.price-display .period {
+  font-size: 14px;
+  font-weight: 400;
+  color: #9ca3af;
+}
+
+/* セパレーター */
+.separator {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+/* アバター */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.avatar-lg {
+  width: 64px;
+  height: 64px;
+  font-size: 24px;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+
+/* リストアイテム */
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.2s ease;
+}
+
+.list-item:active {
+  background: #f9fafb;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+/* iOS風スイッチ */
+.switch {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  background: #e5e7eb;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.switch.active {
+  background: #ec4899;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.switch.active::after {
+  transform: translateX(20px);
+}
+
+/* ハプティックフィードバック対応ボタン */
+@media (hover: none) {
+  .btn:active,
+  .quick-reply-btn:active,
+  .plan-card:active {
+    transform: scale(0.97);
+  }
+}
+
+/* 横向き対応 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .header {
+    padding: 8px 16px;
+  }
+  
+  .footer-input {
+    padding: 8px 16px;
+  }
+  
+  .chat-bubble {
+    max-width: 70%;
+  }
+}
+
+/* 大画面タブレット */
+@media (min-width: 1024px) {
+  .chat-bubble {
+    max-width: 60%;
+  }
+  
+  .modal-content {
+    max-width: 600px;
+  }
+}

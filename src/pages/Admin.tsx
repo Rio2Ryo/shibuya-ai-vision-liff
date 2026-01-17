@@ -9,7 +9,9 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   confirmed: '確定済み',
   paid: '支払い済み',
   scheduled: '放映予定',
+  broadcast: '放映中',
   broadcasted: '放映完了',
+  completed: '完了',
   cancelled: 'キャンセル',
 };
 
@@ -19,7 +21,9 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   confirmed: 'bg-blue-100 text-blue-800 border-blue-200',
   paid: 'bg-green-100 text-green-800 border-green-200',
   scheduled: 'bg-purple-100 text-purple-800 border-purple-200',
+  broadcast: 'bg-pink-100 text-pink-800 border-pink-200',
   broadcasted: 'bg-gray-100 text-gray-800 border-gray-200',
+  completed: 'bg-gray-100 text-gray-800 border-gray-200',
   cancelled: 'bg-red-100 text-red-800 border-red-200',
 };
 
@@ -29,7 +33,9 @@ const STATUS_ICONS: Record<OrderStatus, string> = {
   confirmed: '✅',
   paid: '💰',
   scheduled: '📅',
+  broadcast: '📺',
   broadcasted: '📺',
+  completed: '🎉',
   cancelled: '❌',
 };
 
@@ -686,10 +692,10 @@ function OrderDetailModal({
 
           {/* タイムスタンプ */}
           <div className="text-xs text-gray-400 space-y-1 bg-gray-50 rounded-xl p-4">
-            <p>📅 作成: {order.createdAt.toLocaleString('ja-JP')}</p>
-            <p>🔄 更新: {order.updatedAt.toLocaleString('ja-JP')}</p>
-            {order.confirmedAt && <p>✅ 確定: {order.confirmedAt.toLocaleString('ja-JP')}</p>}
-            {order.broadcastedAt && <p>📺 放映: {order.broadcastedAt.toLocaleString('ja-JP')}</p>}
+            <p>📅 作成: {new Date(order.createdAt).toLocaleString('ja-JP')}</p>
+            <p>🔄 更新: {new Date(order.updatedAt).toLocaleString('ja-JP')}</p>
+            {order.confirmedAt && <p>✅ 確定: {new Date(order.confirmedAt).toLocaleString('ja-JP')}</p>}
+            {order.broadcastedAt && <p>📺 放映: {new Date(order.broadcastedAt).toLocaleString('ja-JP')}</p>}
           </div>
         </div>
 

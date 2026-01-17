@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import liff from '@line/liff';
 import { aiChatService, ConversationContext } from './services/aiChatService';
 import Admin from './pages/Admin';
+import OrderHistory from './pages/OrderHistory';
 import './index.css';
 
 // チャットメッセージの型
@@ -429,6 +430,15 @@ function ChatApp() {
           </p>
         </div>
         <button 
+          onClick={() => navigate('/history')}
+          className="p-2.5 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all duration-200"
+          title="注文履歴"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+          </svg>
+        </button>
+        <button 
           onClick={() => navigate('/admin')}
           className="p-2.5 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all duration-200"
           title="管理画面"
@@ -566,6 +576,7 @@ function App() {
       <Routes>
         <Route path="/" element={<ChatApp />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/history" element={<OrderHistory />} />
       </Routes>
     </BrowserRouter>
   );
