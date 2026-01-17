@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+/* カスタムテーマ */
+@theme {
+  --color-line-green: #00B900;
+  --color-line-dark: #1A1A1A;
+  --color-ai-vision-pink: #FF69B4;
+  --color-ai-vision-blue: #4169E1;
+}
+
+/* カスタムスタイル */
+body {
+  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+}
+
+/* ボタンスタイル */
+.btn-primary {
+  @apply bg-[#FF69B4] text-white font-bold py-3 px-6 rounded-lg 
+         hover:bg-pink-600 transition-colors duration-200
+         disabled:bg-gray-300 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply bg-white text-[#FF69B4] border-2 border-[#FF69B4] 
+         font-bold py-3 px-6 rounded-lg
+         hover:bg-pink-50 transition-colors duration-200;
+}
+
+.btn-line {
+  @apply bg-[#00B900] text-white font-bold py-3 px-6 rounded-lg
+         hover:bg-green-600 transition-colors duration-200;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-md p-6;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg
+         focus:outline-none focus:ring-2 focus:ring-[#FF69B4] focus:border-transparent;
+}
+
+/* メッセージ入力エリア（8文字×5行） */
+.message-grid {
+  font-family: monospace;
+  font-size: 1.125rem;
+  line-height: 1.625;
+  letter-spacing: 0.1em;
+}
+
+.message-line {
+  @apply h-10 flex items-center justify-center bg-gray-100 rounded mb-1;
+}
+
+/* アニメーション */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* チャットバブル */
+.chat-bubble-user {
+  @apply bg-[#FF69B4] text-white rounded-2xl rounded-br-sm px-4 py-2 max-w-[80%] ml-auto;
+}
+
+.chat-bubble-ai {
+  @apply bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-2 max-w-[80%];
+}
+
+/* スクロールバー非表示 */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
