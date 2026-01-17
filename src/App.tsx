@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import liff from '@line/liff';
+import * as liffUtils from './utils/liffUtils';
 import { aiChatService, ConversationContext } from './services/aiChatService';
 import Admin from './pages/Admin';
 import OrderHistory from './pages/OrderHistory';
@@ -335,7 +336,23 @@ function ChatApp() {
   const handleOrderConfirm = useCallback(async () => {
     setShowOrderModal(false);
     handleSend('OK');
-  }, [handleSend]);
+    
+    // 注文完了後、LINEでシェアを提案
+    if (isInClient && context.recipientName && context.messageLines) {
+      const plan = PLANS.find(p => p.id === selectedPlanId || p.name === context.selectedPlan);
+      try {
+        await liffUtils.shareOrderCompletion({
+          orderId: `SAV${Date.now()}`,
+          recipientName: context.recipientName,
+          message: context.messageLines.join('\n'),
+          planName: plan?.name || '未選択',
+          broadcastDate: context.broadcastDate || '未定'
+        });
+      } catch (error) {
+        console.log('Share cancelled or failed:', error);
+      }
+    }
+  }, [handleSend, isInClient, context, selectedPlanId]);
 
   const handleReset = useCallback(() => {
     aiChatService.reset();
