@@ -1,11 +1,7 @@
 // Vercel Serverless Function for AI Chat
-// This file handles AI-powered message generation using Claude/GPT
+// This file handles AI-powered message generation using Claude API
 
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 interface ChatRequest {
   recipientName: string;
@@ -41,66 +37,41 @@ const SYSTEM_PROMPT = `あなたは渋谷愛ビジョン（大型ビジョン）
 
 各案は必ず5行で、各行は8文字以内にしてください。`;
 
-export async function POST(request: Request) {
-  try {
-    const body: ChatRequest = await request.json();
-    const { recipientName, occasion, broadcastDate, additionalInfo } = body;
-
-    const userMessage = `
-相手の名前: ${recipientName}さん
-お祝いの種類: ${occasion}
-放映希望日: ${broadcastDate}
-${additionalInfo ? `追加情報: ${additionalInfo}` : ''}
-
-上記の情報を元に、渋谷愛ビジョンに表示する3つのメッセージ案を作成してください。
-各案は5行で、各行は8文字以内です。
-JSON形式で返してください。
-`;
-
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+// Claude APIを呼び出す
+async function callClaudeAPI(userMessage: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY is not set');
+  }
+  
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-3-haiku-20240307',
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       messages: [
         {
           role: 'user',
-          content: userMessage,
-        },
-      ],
-    });
-
-    // Parse the response
-    const content = response.content[0];
-    if (content.type !== 'text') {
-      throw new Error('Unexpected response type');
-    }
-
-    // Try to extract JSON from the response
-    const jsonMatch = content.text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const suggestions = JSON.parse(jsonMatch[0]);
-      return new Response(JSON.stringify(suggestions), {
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    // If no JSON found, create a structured response from the text
-    const suggestions = parseTextToSuggestions(content.text, recipientName);
-    return new Response(JSON.stringify(suggestions), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-  } catch (error) {
-    console.error('AI Chat Error:', error);
-    
-    // Fallback to demo suggestions
-    const body: ChatRequest = await request.json();
-    const demoSuggestions = generateDemoSuggestions(body.recipientName, body.occasion);
-    
-    return new Response(JSON.stringify(demoSuggestions), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+          content: userMessage
+        }
+      ]
+    })
+  });
+  
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Claude API error: ${error}`);
   }
+  
+  const data = await response.json();
+  return data.content[0]?.text || '';
 }
 
 function parseTextToSuggestions(text: string, recipientName: string): MessageSuggestion[] {
@@ -212,7 +183,59 @@ function generateDemoSuggestions(recipientName: string, occasion: string): Messa
   return templates[occasion] || templates['お祝い'];
 }
 
-// Export for Vercel
-export const config = {
-  runtime: 'edge',
-};
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const body: ChatRequest = req.body;
+    const { recipientName, occasion, broadcastDate, additionalInfo } = body;
+
+    const userMessage = `
+相手の名前: ${recipientName}さん
+お祝いの種類: ${occasion}
+放映希望日: ${broadcastDate}
+${additionalInfo ? `追加情報: ${additionalInfo}` : ''}
+
+上記の情報を元に、渋谷愛ビジョンに表示する3つのメッセージ案を作成してください。
+各案は5行で、各行は8文字以内です。
+JSON形式で返してください。
+`;
+
+    try {
+      const responseText = await callClaudeAPI(userMessage);
+      
+      // Try to extract JSON from the response
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const suggestions = JSON.parse(jsonMatch[0]);
+        return res.status(200).json(suggestions);
+      }
+
+      // If no JSON found, create a structured response from the text
+      const suggestions = parseTextToSuggestions(responseText, recipientName);
+      return res.status(200).json({ suggestions });
+
+    } catch (apiError) {
+      console.error('AI API Error:', apiError);
+      
+      // Fallback to demo suggestions
+      const demoSuggestions = generateDemoSuggestions(recipientName, occasion);
+      return res.status(200).json({ suggestions: demoSuggestions });
+    }
+
+  } catch (error) {
+    console.error('AI Chat Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}

@@ -1,11 +1,7 @@
 // Vercel Serverless Function - AI Chat API
 // Claude APIを使用してチャット応答を生成
 
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const SYSTEM_PROMPT = `あなたは「渋谷愛ビジョン」のAIコンシェルジュです。
 渋谷の大型ビジョンで「おめでとう」「ありがとう」のメッセージを放映するサービスをサポートします。
@@ -58,16 +54,99 @@ interface RequestBody {
   context: ConversationContext;
 }
 
-export default async function handler(req: Request): Promise<Response> {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
+// Claude APIを呼び出す
+async function callClaudeAPI(messages: { role: string; content: string }[], contextInfo: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  
+  if (!apiKey) {
+    return generateFallbackResponse(messages[messages.length - 1]?.content || '');
+  }
+  
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT + contextInfo,
+        messages: messages.map(m => ({
+          role: m.role === 'user' ? 'user' : 'assistant',
+          content: m.content
+        }))
+      })
     });
+    
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Claude API error:', error);
+      return generateFallbackResponse(messages[messages.length - 1]?.content || '');
+    }
+    
+    const data = await response.json();
+    return data.content[0]?.text || generateFallbackResponse(messages[messages.length - 1]?.content || '');
+  } catch (error) {
+    console.error('Claude API call failed:', error);
+    return generateFallbackResponse(messages[messages.length - 1]?.content || '');
+  }
+}
+
+// フォールバック応答を生成
+function generateFallbackResponse(userMessage: string): string {
+  const message = userMessage.toLowerCase();
+  
+  if (message.includes('使い方') || message.includes('ヘルプ')) {
+    return `✨ 渋谷愛ビジョンへようこそ！
+
+渋谷駅の大型ビジョンで、大切な人にメッセージを届けられます💕
+
+【使い方】
+1️⃣ 相手の名前を教えてください
+2️⃣ お祝いの種類を選んでください
+3️⃣ メッセージを一緒に考えましょう
+4️⃣ プランを選んで注文完了！
+
+ご質問があればお気軽にどうぞ！`;
+  }
+  
+  if (message.includes('料金') || message.includes('プラン') || message.includes('価格')) {
+    return `💎 料金プラン
+
+【無料】0円 - 抽選で放映（1日1通）
+【TEAM愛9】月500円 - 当選確率UP（1日2通）
+【事前予約】8,800円〜 - 確実放映
+【おめあり祭23B】3,300円 - 23時台放映
+
+どのプランがご希望ですか？`;
+  }
+  
+  return `こんにちは！渋谷愛ビジョン AIコンシェルジュです✨
+
+渋谷の大型ビジョンで、大切な人にメッセージを届けませんか？
+
+まずは、メッセージを届けたい相手のお名前を教えてください💕`;
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const body: RequestBody = await req.json();
+    const body: RequestBody = req.body;
     const { messages, context } = body;
 
     // システムメッセージを除いたメッセージを準備
@@ -87,16 +166,7 @@ export default async function handler(req: Request): Promise<Response> {
 - 放映希望日: ${context.date || '未入力'}
 - 選択プラン: ${context.plan || '未選択'}`;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT + contextInfo,
-      messages: chatMessages,
-    });
-
-    // テキストブロックを抽出
-    const textBlock = response.content.find(block => block.type === 'text');
-    const assistantMessage = textBlock ? textBlock.text : 'すみません、応答を生成できませんでした。';
+    const assistantMessage = await callClaudeAPI(chatMessages, contextInfo);
 
     // コンテキストの更新を検出（簡易的な実装）
     const updatedContext = { ...context };
@@ -106,26 +176,16 @@ export default async function handler(req: Request): Promise<Response> {
       updatedContext.currentStep = 'ask_recipient';
     }
 
-    return new Response(JSON.stringify({
+    return res.status(200).json({
       message: assistantMessage,
       context: updatedContext,
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('Chat API Error:', error);
-    return new Response(JSON.stringify({
+    return res.status(500).json({
       error: 'Internal server error',
       message: 'すみません、エラーが発生しました。もう一度お試しください。',
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
     });
   }
 }
-
-export const config = {
-  runtime: 'edge',
-};
