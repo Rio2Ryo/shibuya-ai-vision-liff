@@ -4,7 +4,7 @@
   "framework": "vite",
   "functions": {
     "api/*.ts": {
-      "runtime": "@vercel/node@3.2.0"
+      "runtime": "nodejs20.x"
     }
   },
   "rewrites": [
@@ -32,23 +32,6 @@
         {
           "key": "Access-Control-Allow-Headers",
           "value": "Content-Type"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
         }
       ]
     }
